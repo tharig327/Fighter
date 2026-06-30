@@ -200,7 +200,8 @@ canvas{width:100%;height:auto;display:block;border-radius:8px;border:2px solid #
     <div style="font-size:14px;font-weight:bold;color:#00ff41;font-family:monospace;margin-top:8px;letter-spacing:3px;">⚙ DEV CONSOLE</div>
     <div style="color:#00ff41;font-size:9px;font-family:monospace;opacity:0.4;margin-bottom:14px;letter-spacing:1px;">DEVELOPER USE ONLY</div>
     <div style="color:#00ff41;font-size:10px;font-family:monospace;letter-spacing:1px;margin-bottom:8px;">JUMP TO TOWER FLOOR</div>
-    <div id="dev-floor-btns" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px;max-width:340px;"></div>
+    <div id="dev-floor-btns" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;max-width:340px;"></div>
+    <button id="dev-timer-btn" style="background:#050f05;border:1px solid #00ff41;color:#00ff41;font-family:monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;margin-bottom:12px;">TIMER: ON ⏱</button>
     <button class="menu-btn" id="dev-close-btn" style="background:#0a0a0a;border:1px solid #00ff41;color:#00ff41;font-family:monospace;">✕ CLOSE</button>
   </div>
 </div>
@@ -1065,7 +1066,7 @@ function updateHUD(){
   p1f.style.width=G.p1.health+"%";p1f.style.background=hpColor(G.p1.health);p1f.style.boxShadow=`0 0 8px ${hpColor(G.p1.health)}`;
   const p2f=document.getElementById('p2fill');
   p2f.style.width=G.p2.health+"%";p2f.style.background=hpColor(G.p2.health);p2f.style.boxShadow=`0 0 8px ${hpColor(G.p2.health)}`;
-  document.getElementById('timer-val').textContent=G.timer;
+  document.getElementById('timer-val').textContent=devTimerFrozen?"∞":G.timer;
   document.getElementById('round-label').textContent=G.mode==="tower"?`FLOOR ${G.towerFloor}/${TOWER_FLOORS+1}`:`RND ${G.round}`;
   document.getElementById('p1stars').textContent=G.mode==="tower"?"":"★".repeat(G.p1Wins)+"☆".repeat(2-G.p1Wins);
   document.getElementById('p2stars').textContent=G.mode==="tower"?"":"★".repeat(G.p2Wins)+"☆".repeat(2-G.p2Wins);
@@ -1192,7 +1193,7 @@ let prevBtns={};
 function loop(){
   if(G.gameState==="fight"&&!G.paused){
     G.timerTick++;
-    if(G.timerTick>=60){G.timerTick=0;G.timer--;if(G.timer<=0){const w=G.p1.health>=G.p2.health?"P1":G.p2.health>=G.p1.health?"P2":"DRAW";endRound(w);}}
+    if(G.timerTick>=60){G.timerTick=0;if(!devTimerFrozen){G.timer--;if(G.timer<=0){const w=G.p1.health>=G.p2.health?"P1":G.p2.health>=G.p1.health?"P2":"DRAW";endRound(w);}}}
     const p1punch=(keys.has("KeyJ")&&!G.prevKeys.has("KeyJ"))||(touchState.punch&&!prevBtns.punch);
     const p1kick=(keys.has("KeyK")&&!G.prevKeys.has("KeyK"))||(touchState.kick&&!prevBtns.kick);
     const p1special=(keys.has("KeyL")&&!G.prevKeys.has("KeyL"))||(touchState.special&&!prevBtns.special);
@@ -1262,6 +1263,7 @@ function togglePause(){
   if(G.paused)stopMusic();else if(musicEnabled)startMusic(selectedSong);
 }
 let cpuOn=true;
+let devTimerFrozen=false;
 function toggleCpu(){
   cpuOn=!cpuOn;G.cpuEnabled=cpuOn;
   const btn=document.getElementById('cpu-btn');
@@ -1462,8 +1464,19 @@ function buildDevPanel(){
     b.onclick=()=>startTowerFloor(f,MAX_HEALTH);
     btns.appendChild(b);
   }
+  // Timer toggle button — update label to reflect current state
+  const tb=document.getElementById('dev-timer-btn');
+  tb.textContent=devTimerFrozen?'TIMER: OFF ∞':'TIMER: ON ⏱';
+  tb.style.borderColor=devTimerFrozen?'#ef4444':'#00ff41';
+  tb.style.color=devTimerFrozen?'#ef4444':'#00ff41';
 }
 document.getElementById('dev-close-btn').onclick=()=>showOverlay("ov-title");
+document.getElementById('dev-timer-btn').onclick=function(){
+  devTimerFrozen=!devTimerFrozen;
+  this.textContent=devTimerFrozen?'TIMER: OFF ∞':'TIMER: ON ⏱';
+  this.style.borderColor=devTimerFrozen?'#ef4444':'#00ff41';
+  this.style.color=devTimerFrozen?'#ef4444':'#00ff41';
+};
 let _devClicks=0,_devTimer=null;
 document.getElementById('version-label').addEventListener('click',()=>{
   _devClicks++;
