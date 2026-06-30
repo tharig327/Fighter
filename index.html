@@ -201,7 +201,8 @@ canvas{width:100%;height:auto;display:block;border-radius:8px;border:2px solid #
     <div style="color:#00ff41;font-size:9px;font-family:monospace;opacity:0.4;margin-bottom:14px;letter-spacing:1px;">DEVELOPER USE ONLY</div>
     <div style="color:#00ff41;font-size:10px;font-family:monospace;letter-spacing:1px;margin-bottom:8px;">JUMP TO TOWER FLOOR</div>
     <div id="dev-floor-btns" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;max-width:340px;"></div>
-    <button id="dev-timer-btn" style="background:#050f05;border:1px solid #00ff41;color:#00ff41;font-family:monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;margin-bottom:12px;">TIMER: ON ⏱</button>
+    <button id="dev-timer-btn" style="background:#050f05;border:1px solid #00ff41;color:#00ff41;font-family:monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;margin-bottom:8px;">TIMER: ON ⏱</button>
+    <button id="dev-clear-lb-btn" style="background:#050505;border:1px solid #ef4444;color:#ef4444;font-family:monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;margin-bottom:12px;">🗑 CLEAR LEADERBOARD</button>
     <button class="menu-btn" id="dev-close-btn" style="background:#0a0a0a;border:1px solid #00ff41;color:#00ff41;font-family:monospace;">✕ CLOSE</button>
   </div>
 </div>
@@ -1468,6 +1469,13 @@ function buildDevPanel(){
   tb.style.color=devTimerFrozen?'#ef4444':'#00ff41';
 }
 document.getElementById('dev-close-btn').onclick=()=>showOverlay("ov-title");
+document.getElementById('dev-clear-lb-btn').onclick=async function(){
+  if(!confirm('Clear all leaderboard entries?'))return;
+  saveLocalLB([]);
+  await pushGithubLB([]);
+  this.textContent='✓ CLEARED';
+  setTimeout(()=>{this.textContent='🗑 CLEAR LEADERBOARD';},2000);
+};
 document.getElementById('dev-timer-btn').onclick=function(){
   devTimerFrozen=!devTimerFrozen;
   this.textContent=devTimerFrozen?'TIMER: OFF ∞':'TIMER: ON ⏱';
